@@ -1,0 +1,65 @@
+﻿
+@{
+    ViewBag.Title = "WebSocket";
+}
+
+<h2>WebSocket</h2>
+
+<form id="form1" runat="server">
+    <div>
+        <input id="userName" type="text" />
+        <input id="conn" type="button" value="连接" />
+        <input id="close" type="button" value="关闭"
+        <span id="tips"></span>
+        <input id="content" type="text" />
+        <input id="send" type="button" value="发送" />
+    </div>
+    <div id="view">
+        <ul></ul>
+    </div>
+</form>
+
+@section scripts{
+    <script>
+        $(function () {
+            var wsUrl = "ws://localhost:51595/MyWebSocketHandler.ashx";
+            var ws; function connect() {
+                var userName = $("#userName").val();
+                var url = wsUrl + "?userName=" + userName;
+                ws = new WebSocket(url);
+                $("#tips").text("正在连接");
+                ws.onopen = function () {
+                    $("#tips").text("已经连接");
+                }
+                ws.onmessage = function (evt) {
+                    $("#view ul").append("<li>" + evt.data + "</liv>");
+                }
+                ws.onerror = function (evt) {
+                    $("tips").text(Json.stringify(evt));
+                }
+                ws.onclose = function () {
+                    $("#tips").text("已经关闭");
+                    setTimeout(connect, 5000);  //心跳： 延时5秒定时器   时间间隔发个数据到服务器，服务再返回一下
+                    //     connect();
+                }
+            }
+            $("#conn").click(function () {
+                connect();
+            });
+
+            $("#close").click(function () {
+                ws.close();
+            });
+
+            $("#send").click(function () {
+                if (ws.readyState == WebSocket.OPEN) {
+                    ws.send($("#content").val());
+                } else {
+                    $("tips").text("连接已经关闭，点击重连");
+                }
+            });
+        });
+
+    </script>
+
+}

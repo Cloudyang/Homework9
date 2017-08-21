@@ -26,5 +26,10 @@ namespace WebChatRoom.Controllers
 
             return View();
         }
+
+        public ActionResult WebSocket()
+        {
+            return View();
+        }
     }
 }
